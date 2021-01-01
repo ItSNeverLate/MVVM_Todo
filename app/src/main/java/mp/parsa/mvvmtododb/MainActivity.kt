@@ -2,6 +2,7 @@ package mp.parsa.mvvmtododb
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import mp.parsa.mvvmtododb.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
