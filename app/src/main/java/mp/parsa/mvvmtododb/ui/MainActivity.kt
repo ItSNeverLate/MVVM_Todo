@@ -1,4 +1,4 @@
-package mp.parsa.mvvmtododb
+package mp.parsa.mvvmtododb.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
