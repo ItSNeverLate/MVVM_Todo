@@ -4,9 +4,11 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import mp.parsa.mvvmtododb.data.db.dao.SortOrder
 import mp.parsa.mvvmtododb.data.db.dao.TaskDao
@@ -41,6 +43,9 @@ constructor(
     // We use Flow because it is more flexible to change thread and transformation
     val tasks = tasksFlow.asLiveData()
 
+    private val tasksChannel = Channel<TasksEvent>()
+    val tasksEvent = tasksChannel.receiveAsFlow()
+
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.setSortOrder(sortOrder)
     }
@@ -54,6 +59,19 @@ constructor(
     }
 
     fun onTaskSelected(task: Task) {
+    }
+
+    fun onTaskSwiped(task: Task) = viewModelScope.launch {
+        taskDao.delete(task)
+        tasksChannel.send(TasksEvent.ShowUndoTaskDeleted(task))
+    }
+
+    fun onDeleteUndoClick(task: Task) = viewModelScope.launch {
+        taskDao.insert(task)
+    }
+
+    sealed class TasksEvent {
+        data class ShowUndoTaskDeleted(val task: Task) : TasksEvent()
     }
 }
 
