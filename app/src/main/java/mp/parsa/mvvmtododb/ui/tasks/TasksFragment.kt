@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import mp.parsa.mvvmtododb.R
+import mp.parsa.mvvmtododb.data.db.dao.SortOrder
 import mp.parsa.mvvmtododb.databinding.FragmentTasksBinding
 import mp.parsa.mvvmtododb.utils.setOnQueryTextChanged
 
@@ -56,13 +57,16 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.action_order_by_name -> {
+                viewMode.sortOrder.value = SortOrder.BY_NAME
                 true
             }
             R.id.action_order_by_created_date -> {
+                viewMode.sortOrder.value = SortOrder.BY_CREATED_DATE
                 true
             }
             R.id.action_hide_completed_tasks -> {
                 item.isChecked = !item.isChecked
+                viewMode.hideCompletedTasks.value = item.isChecked
                 true
             }
             R.id.action_delete_all_completed_tasks -> {

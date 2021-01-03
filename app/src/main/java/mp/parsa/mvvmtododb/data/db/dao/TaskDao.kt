@@ -7,8 +7,27 @@ import mp.parsa.mvvmtododb.data.db.entity.Task
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM tasks WHERE name LIKE '%' || :searchQuery ||'%' ORDER BY important DESC ")
-    fun getAll(searchQuery: String): Flow<List<Task>> // suspend function or Flow has to run in CoroutineScope
+    fun getAll(
+        searchQuery: String,
+        sortOrder: SortOrder,
+        hideCompletedTasks: Boolean
+    ): Flow<List<Task>> =
+        when (sortOrder) {
+            SortOrder.BY_NAME -> getAllOrderByName(searchQuery, hideCompletedTasks)
+            SortOrder.BY_CREATED_DATE -> getAllOrderByCreatedDate(searchQuery, hideCompletedTasks)
+        }
+
+    @Query("SELECT * FROM tasks WHERE name LIKE '%' || :searchQuery ||'%' AND (completed != :hideCompletedTasks OR completed == 0) ORDER BY important DESC, name")
+    fun getAllOrderByName(
+        searchQuery: String,
+        hideCompletedTasks: Boolean
+    ): Flow<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE name LIKE '%' || :searchQuery ||'%' AND (completed != :hideCompletedTasks OR completed == 0) ORDER BY important DESC, createdDate")
+    fun getAllOrderByCreatedDate(
+        searchQuery: String,
+        hideCompletedTasks: Boolean
+    ): Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(task: Task)
@@ -19,3 +38,5 @@ interface TaskDao {
     @Delete
     suspend fun delete(task: Task)
 }
+
+enum class SortOrder { BY_NAME, BY_CREATED_DATE }
