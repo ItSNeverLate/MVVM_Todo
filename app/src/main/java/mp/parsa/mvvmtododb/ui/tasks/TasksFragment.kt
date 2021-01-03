@@ -16,11 +16,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import mp.parsa.mvvmtododb.R
 import mp.parsa.mvvmtododb.data.db.dao.SortOrder
+import mp.parsa.mvvmtododb.data.db.entity.Task
 import mp.parsa.mvvmtododb.databinding.FragmentTasksBinding
 import mp.parsa.mvvmtododb.utils.setOnQueryTextChanged
 
 @AndroidEntryPoint
-class TasksFragment : Fragment(R.layout.fragment_tasks) {
+class TasksFragment : Fragment(R.layout.fragment_tasks) ,TasksAdapter.OnClickListener {
 
     private val viewMode: TasksViewModel by viewModels()
 
@@ -29,7 +30,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
         val binding = FragmentTasksBinding.bind(view)
 
-        val tasksAdapter = TasksAdapter()
+        val tasksAdapter = TasksAdapter(this)
 
         binding.apply {
             recyclerView.apply {
@@ -82,4 +83,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             }
             else -> super.onOptionsItemSelected(item)
         }
+
+    override fun onItemClick(task: Task) {
+        viewMode.onTaskSelected(task)
+    }
+
+    override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+        viewMode.onTaskCheckBoxChange(task, isChecked)
+    }
 }

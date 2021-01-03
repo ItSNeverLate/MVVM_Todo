@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import mp.parsa.mvvmtododb.data.db.dao.SortOrder
 import mp.parsa.mvvmtododb.data.db.dao.TaskDao
+import mp.parsa.mvvmtododb.data.db.entity.Task
 import mp.parsa.mvvmtododb.data.preferences.PreferencesManager
 
 class TasksViewModel
@@ -46,6 +47,13 @@ constructor(
 
     fun onHideCompletedTasksClicked(isChecked: Boolean) = viewModelScope.launch {
         preferencesManager.setHideCompletedTasks(isChecked)
+    }
+
+    fun onTaskCheckBoxChange(task: Task, isChecked: Boolean) = viewModelScope.launch {
+        taskDao.update(task.copy(completed = isChecked))
+    }
+
+    fun onTaskSelected(task: Task) {
     }
 }
 
