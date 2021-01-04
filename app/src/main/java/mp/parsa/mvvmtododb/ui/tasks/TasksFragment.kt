@@ -30,7 +30,9 @@ import mp.parsa.mvvmtododb.util.setOnQueryTextChanged
 @AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickListener {
 
-    private val viewMode: TasksViewModel by viewModels()
+    private val viewModel: TasksViewModel by viewModels()
+
+    private lateinit var searchView: SearchView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,26 +58,26 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickLis
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val task = tasksAdapter.currentList[viewHolder.adapterPosition]
-                    viewMode.onTaskSwipe(task)
+                    viewModel.onTaskSwipe(task)
                 }
             }).attachToRecyclerView(recyclerView)
 
             fabAddTask.setOnClickListener {
-                viewMode.onAddTaskClick()
+                viewModel.onAddTaskClick()
             }
         }
 
-        viewMode.tasks.observe(viewLifecycleOwner, Observer {
+        viewModel.tasks.observe(viewLifecycleOwner, Observer {
             tasksAdapter.submitList(it)
         })
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewMode.tasksEvent.collect { event ->
+            viewModel.tasksEvent.collect { event ->
                 when (event) {
                     is TasksViewModel.TasksEvent.ShowUndoTaskDeleted -> {
                         Snackbar.make(requireView(), "Task deleted!", Snackbar.LENGTH_LONG)
                             .setAction("Undo") {
-                                viewMode.onDeleteUndoClick(event.task)
+                                viewModel.onDeleteUndoClick(event.task)
                             }
                             .show()
                     }
@@ -109,7 +111,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickLis
 
         setFragmentResultListener("add_edit_task_request") { _, bundle ->
             val result = bundle.getInt("add_edit_task_result")
-            viewMode.onAddEditTaskResult(result)
+            viewModel.onAddEditTaskResult(result)
         }
 
         setHasOptionsMenu(true)
@@ -119,45 +121,51 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickLis
         inflater.inflate(R.menu.menu_fragment_tasks, menu)
 
         val searchItem = menu.findItem(R.id.action_search_query)
-        val searchView = searchItem.actionView as SearchView
+        searchView = searchItem.actionView as SearchView
+
+        val pendingQuery = viewModel.searchQuery.value
+        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+            searchItem.expandActionView()
+            searchView.setQuery(pendingQuery, false)
+        }
 
         searchView.setOnQueryTextChanged {
-            viewMode.searchQuery.value = it
+            viewModel.searchQuery.value = it
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             menu.findItem(R.id.action_hide_completed_tasks).isChecked =
-                viewMode.preferencesFlow.first().hideCompletedTasks // first: because we need its value once
+                viewModel.preferencesFlow.first().hideCompletedTasks // first: because we need its value once
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.action_order_by_name -> {
-                viewMode.onSortOrderSelect(SortOrder.BY_NAME)
+                viewModel.onSortOrderSelect(SortOrder.BY_NAME)
                 true
             }
             R.id.action_order_by_created_date -> {
-                viewMode.onSortOrderSelect(SortOrder.BY_CREATED_DATE)
+                viewModel.onSortOrderSelect(SortOrder.BY_CREATED_DATE)
                 true
             }
             R.id.action_hide_completed_tasks -> {
                 item.isChecked = !item.isChecked
-                viewMode.onHideCompletedTasksClick(item.isChecked)
+                viewModel.onHideCompletedTasksClick(item.isChecked)
                 true
             }
             R.id.action_delete_all_completed_tasks -> {
-                viewMode.onDeleteCompletedTasksClick()
+                viewModel.onDeleteCompletedTasksClick()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
 
     override fun onItemClick(task: Task) {
-        viewMode.onTaskSelect(task)
+        viewModel.onTaskSelect(task)
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
-        viewMode.onTaskCheckBoxChange(task, isChecked)
+        viewModel.onTaskCheckBoxChange(task, isChecked)
     }
 }
