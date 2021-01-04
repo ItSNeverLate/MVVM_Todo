@@ -96,13 +96,18 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickLis
                         findNavController().navigate(action)
                     }
                     is TasksViewModel.TasksEvent.ShowTaskSavedConfirmationMessage -> {
-                        Snackbar.make(requireView(),event.msg,Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                    TasksViewModel.TasksEvent.NavigateToDeleteCompletedTasksScreen -> {
+                        val action =
+                            TasksFragmentDirections.actionGlobalDeletedCompletedTasksDialogFragment()
+                        findNavController().navigate(action)
                     }
                 }.exhaustive
             }
         }
 
-        setFragmentResultListener("add_edit_task_request"){ _,bundle ->
+        setFragmentResultListener("add_edit_task_request") { _, bundle ->
             val result = bundle.getInt("add_edit_task_result")
             viewMode.onAddEditTaskResult(result)
         }
@@ -142,6 +147,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnClickLis
                 true
             }
             R.id.action_delete_all_completed_tasks -> {
+                viewMode.onDeleteCompletedTasksClick()
                 true
             }
             else -> super.onOptionsItemSelected(item)

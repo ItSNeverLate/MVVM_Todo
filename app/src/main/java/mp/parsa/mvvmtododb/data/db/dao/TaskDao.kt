@@ -37,6 +37,9 @@ interface TaskDao {
 
     @Delete
     suspend fun delete(task: Task)
+
+    @Query("DELETE FROM tasks WHERE completed = 1")
+    suspend fun deleteCompletedTasks()
 }
 
 enum class SortOrder { BY_NAME, BY_CREATED_DATE }

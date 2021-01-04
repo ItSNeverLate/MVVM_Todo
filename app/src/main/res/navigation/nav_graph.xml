@@ -28,4 +28,11 @@
             android:name="title"
             app:argType="string" />
     </fragment>
+    <dialog
+        android:id="@+id/deletedCompletedTasksDialogFragment"
+        android:name="mp.parsa.mvvmtododb.ui.deletecompletedtasks.DeletedCompletedTasksDialogFragment"
+        android:label="DeletedCompletedTasksDialogFragment" />
+    <action
+        android:id="@+id/action_global_deletedCompletedTasksDialogFragment"
+        app:destination="@id/deletedCompletedTasksDialogFragment" />
 </navigation>
