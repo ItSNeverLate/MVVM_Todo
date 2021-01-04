@@ -1,4 +1,4 @@
-package mp.parsa.mvvmtododb.utils
+package mp.parsa.mvvmtododb.util
 
 import androidx.appcompat.widget.SearchView
 
