@@ -12,11 +12,6 @@
         android:padding="8dp">
 
         <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Task name" />
-
-        <EditText
             android:id="@+id/edit_text_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -12,6 +12,8 @@ import mp.parsa.mvvmtododb.data.db.dao.SortOrder
 import mp.parsa.mvvmtododb.data.db.dao.TaskDao
 import mp.parsa.mvvmtododb.data.db.entity.Task
 import mp.parsa.mvvmtododb.data.preferences.PreferencesManager
+import mp.parsa.mvvmtododb.ui.ADD_TASK_RESULT_OK
+import mp.parsa.mvvmtododb.ui.EDIT_TASK_RESULT_OK
 
 class TasksViewModel
 @ViewModelInject
@@ -74,10 +76,22 @@ constructor(
         tasksEventChannel.send(TasksEvent.NavigateToAddTask)
     }
 
+    fun onAddEditTaskResult(result: Int) {
+        when (result) {
+            ADD_TASK_RESULT_OK -> showTaskSavedConfirmationMessage("Task added")
+            EDIT_TASK_RESULT_OK -> showTaskSavedConfirmationMessage("Task updated")
+        }
+    }
+
+    private fun showTaskSavedConfirmationMessage(msg: String) = viewModelScope.launch {
+        tasksEventChannel.send(TasksEvent.ShowTaskSavedConfirmationMessage(msg))
+    }
+
     sealed class TasksEvent {
         data class ShowUndoTaskDeleted(val task: Task) : TasksEvent()
         object NavigateToAddTask : TasksEvent()
         data class NavigateToEditTask(val task: Task) : TasksEvent()
+        data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
     }
 }
 
